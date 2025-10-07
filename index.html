@@ -1,38 +1,193 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Redirecting…</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta http-equiv="refresh" content="3;url=https://www.youtube.com/watch?v=dQw4w9WgXcQ">
-  <style>
-    html,body { height:100%; margin:0; font-family:system-ui, -apple-system, "Segoe UI", Roboto, Arial; background:#fff; color:#111; }
-    .wrap { height:100%; display:flex; align-items:center; justify-content:center; }
-    .msg { text-align:center; font-size:18px; opacity:0.95; }
-    .host { font-weight:700; margin-left:6px; }
-    .hidden { display:none !important; }
-  </style>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Important — Read Carefully</title>
+<style>
+  :root{
+    --bg:#0f1220;
+    --accent:#ffb86b;
+    --muted:#9aa0b4;
+    --glass: rgba(255,255,255,0.03);
+    --mono: "Courier New", monospace;
+  }
+  html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:linear-gradient(180deg,#0b0d14 0%, #0f1220 60%); color:#e6eef8; -webkit-font-smoothing:antialiased}
+  .wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px;box-sizing:border-box}
+  .card{width:960px;max-width:100%;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:12px;padding:28px;box-shadow: 0 10px 40px rgba(2,6,23,0.7);border:1px solid rgba(255,255,255,0.03);position:relative;overflow:hidden}
+  h1{margin:0 0 8px 0;font-size:26px;letter-spacing:0.6px}
+  p.lead{margin:0 0 18px 0;color:var(--muted);font-size:15px}
+  .lines{font-family:var(--mono);background:rgba(0,0,0,0.25);padding:16px;border-radius:8px;min-height:160px;box-sizing:border-box;display:flex;flex-direction:column;gap:6px;align-items:flex-start;justify-content:center;overflow:hidden}
+  .line{opacity:0;transform:translateY(6px);transition:all 420ms cubic-bezier(.2,.9,.3,1);color:#dff6ff}
+  .line.revealed{opacity:1;transform:translateY(0)}
+  .count{display:flex;gap:10px;margin-top:18px;align-items:center}
+  .timer{font-family:var(--mono);font-weight:700;background:var(--glass);padding:10px 14px;border-radius:10px;border:1px solid rgba(255,184,107,0.06)}
+  .secret{margin-top:20px;padding:14px;border-radius:10px;background:linear-gradient(180deg, rgba(0,0,0,0.35), rgba(0,0,0,0.18));border:1px solid rgba(255,255,255,0.02);display:flex;align-items:center;gap:18px;min-height:120px}
+  .secret .hint{flex:1;color:var(--muted)}
+  .secret .art{width:180px;height:100px;border-radius:8px;background-image:linear-gradient(135deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));filter:blur(10px) grayscale(30%);display:flex;align-items:center;justify-content:center;color:var(--muted);font-weight:700}
+  .reveal-area{margin-top:18px;text-align:center}
+  button.primary{background:linear-gradient(90deg,var(--accent), #ff8b5c);border:none;padding:12px 18px;border-radius:10px;color:#081020;font-weight:800;cursor:pointer;font-size:15px}
+  button.ghost{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:10px 12px;border-radius:8px;color:var(--muted);cursor:pointer}
+  .final{display:none;margin-top:20px;padding:18px;border-radius:10px;background:linear-gradient(90deg, rgba(255,184,107,0.08), rgba(255,255,255,0.02));color:#0b1020}
+  .final.show{display:block; animation:pop 400ms cubic-bezier(.2,.9,.3,1);}
+  @keyframes pop{from{transform:scale(.98);opacity:0}to{transform:none;opacity:1}}
+  .small{font-size:13px;color:var(--muted)}
+  .muted{color:var(--muted)}
+  .center{display:flex;gap:12px;align-items:center;justify-content:center}
+  @media(max-width:700px){.card{padding:18px}.secret{flex-direction:column;align-items:stretch}.secret .art{width:100%;height:120px}}
+</style>
 </head>
 <body>
-  <div class="wrap" id="notice">
-    <div class="msg">
-      <span>Going to</span>
-      <span class="host" id="host">67.com</span>
-      <div style="font-size:13px; color:#666; margin-top:6px;">You will be redirected shortly…</div>
+<div class="wrap">
+  <div class="card" role="main" aria-labelledby="title">
+    <h1 id="title">This is important — read slowly</h1>
+    <p class="lead">Keep scrolling, follow the instructions exactly. Some things are worth the wait.</p>
+
+    <div class="lines" id="lines" aria-live="polite" aria-atomic="false">
+      <!-- lines will be inserted here -->
+    </div>
+
+    <div class="count" style="justify-content:space-between;flex-wrap:wrap">
+      <div class="small">Do not refresh the page — trust the process.</div>
+      <div class="center">
+        <div class="small muted">Reveal in</div>
+        <div class="timer" id="timer" aria-hidden="false">00:20</div>
+      </div>
+    </div>
+
+    <div class="secret" id="secret">
+      <div class="hint">
+        <div style="font-weight:700;margin-bottom:8px">What you're about to discover</div>
+        <div class="muted">It won't look like much at first. Keep your eyes on the timer. When the time is right, you'll be asked to make a choice.</div>
+      </div>
+      <div class="art" id="art">??</div>
+    </div>
+
+    <div class="reveal-area">
+      <div style="margin-top:12px" id="promptArea">
+        <button class="ghost" id="waitBtn">I'm patient</button>
+        <button class="ghost" id="peekBtn">Peek now</button>
+      </div>
+
+      <div class="final" id="final">
+        <div style="font-size:18px;font-weight:800">All right — the truth:</div>
+        <div style="margin-top:10px" id="finalText" class="muted">—</div>
+        <div style="margin-top:16px">
+          <button class="primary" id="openBtn">Open Result</button>
+          <button class="ghost" id="resetBtn">Start Over</button>
+        </div>
+      </div>
     </div>
   </div>
+</div>
 
-  <script>
-    const announceHost = "67.com";
-    const targetUrl    = "https://www.youtube.com/watch?v=dQw4w9WgXcQ";
-    const delayMs      = 3000;
+<script>
+/* ----- configuration ----- */
+const linesToShow = [
+  "They told you not to come here.",
+  "You came anyway.",
+  "This page doesn't usually reveal its secrets.",
+  "We like to take our time.",
+  "Breathe.",
+  "Focus on the little things.",
+  "Listen for the pause between the ticks."
+];
+const initialSeconds = 20; // countdown seconds
+/* ------------------------- */
 
-    document.getElementById("host").textContent = announceHost;
+const linesEl = document.getElementById('lines');
+const timerEl = document.getElementById('timer');
+const art = document.getElementById('art');
+const finalEl = document.getElementById('final');
+const finalText = document.getElementById('finalText');
+const openBtn = document.getElementById('openBtn');
+const resetBtn = document.getElementById('resetBtn');
+const waitBtn = document.getElementById('waitBtn');
+const peekBtn = document.getElementById('peekBtn');
 
-    setTimeout(() => {
-      document.getElementById("notice").classList.add("hidden");
-      window.location.replace(targetUrl);
-    }, delayMs);
-  </script>
+let seconds = initialSeconds;
+let countdown;
+let revealedLines = 0;
+
+function revealNextLine(){
+  if(revealedLines >= linesToShow.length) return;
+  const text = linesToShow[revealedLines++];
+  const div = document.createElement('div');
+  div.className = 'line';
+  div.textContent = text;
+  linesEl.appendChild(div);
+  requestAnimationFrame(()=> div.classList.add('revealed'));
+  art.textContent = ['..','..','.:','::','•'][revealedLines % 5];
+}
+
+function startSequence(){
+  revealNextLine();
+  const interval = setInterval(()=> {
+    revealNextLine();
+    if(revealedLines >= linesToShow.length) clearInterval(interval);
+  }, 3000);
+
+  timerEl.textContent = formatTime(seconds);
+  countdown = setInterval(()=> {
+    seconds--;
+    timerEl.textContent = formatTime(seconds);
+    subtleArtPulse(seconds);
+    if(seconds <= 0){
+      clearInterval(countdown);
+      timerComplete();
+    }
+  }, 1000);
+}
+
+function formatTime(s){
+  const mm = Math.floor(s/60).toString().padStart(2,'0');
+  const ss = (s%60).toString().padStart(2,'0');
+  return mm + ':' + ss;
+}
+
+function subtleArtPulse(sec){
+  const pct = Math.max(0, Math.min(1, sec / initialSeconds));
+  art.style.filter = `blur(${Math.round(10 * pct)}px) grayscale(${Math.round(30 * pct)}%)`;
+  art.textContent = ["?","?","?","…","!","!","!"][Math.floor(pct * 6)];
+}
+
+function timerComplete(){
+  finalText.textContent = "Click Open result — it’s time you know.";
+  art.style.filter = 'blur(0px) grayscale(0%)';
+  finalEl.classList.add('show');
+}
+
+openBtn.addEventListener('click', ()=>{
+  const url = 'https://www.youtube.com/watch?v=xvFZjo5PgG0';
+  window.open(url, '_blank');
+});
+
+resetBtn.addEventListener('click', ()=>{
+  clearInterval(countdown);
+  seconds = initialSeconds;
+  timerEl.textContent = formatTime(seconds);
+  while(linesEl.firstChild) linesEl.removeChild(linesEl.firstChild);
+  revealedLines = 0;
+  finalEl.classList.remove('show');
+  art.style.filter = '';
+  startSequence();
+});
+
+peekBtn.addEventListener('click', ()=>{
+  clearInterval(countdown);
+  seconds = 0;
+  timerEl.textContent = formatTime(0);
+  timerComplete();
+});
+
+waitBtn.addEventListener('click', ()=>{
+  const d = document.createElement('div');
+  d.className = 'line revealed';
+  d.textContent = "Good. Patience suits you.";
+  linesEl.appendChild(d);
+});
+
+startSequence();
+</script>
 </body>
 </html>
