@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin Login — jamali.tech</title>
+  <style>
+    :root{--bg:#0d1117;--panel:#161b22;--text:#c9d1d9;--accent:#238636;--err:#f85149}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(180deg,#06070a,var(--bg));color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    .box{background:var(--panel);padding:28px;border-radius:12px;width:360px;max-width:92%;text-align:center;box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+    h1{margin:0 0 6px;font-size:20px}
+    p{margin:0 0 14px;color:rgba(201,209,217,0.8);font-size:14px}
+    input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text);outline:none;font-size:15px}
+    .row{display:flex;gap:8px;margin-top:12px}
+    button{flex:1;padding:10px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer;font-weight:600}
+    button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text)}
+    .error{color:var(--err);margin-top:12px;font-size:14px}
+    .note{margin-top:10px;color:rgba(201,209,217,0.7);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="box" role="main" aria-labelledby="title">
+    <h1 id="title">Admin Access</h1>
+    <p>Enter the admin password to continue to the admin area.</p>
+
+    <input id="password" type="password" placeholder="Password" aria-label="Password" />
+    <div class="row">
+      <button id="loginBtn">Login</button>
+      <button id="clearBtn" class="secondary" type="button">Clear</button>
+    </div>
+
+    <div id="error" class="error" aria-live="polite"></div>
+    <div class="note">This client-side gate is only for light gating — it is not secure. For real security check the password on the server.</div>
+  </div>
+
+  <script>
+    (function(){
+      const CORRECT = "Spania08"; // changed as requested
+      const loginBtn = document.getElementById('loginBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      const passInput = document.getElementById('password');
+      const errEl = document.getElementById('error');
+
+      function doLogin(){
+        errEl.textContent = '';
+        const v = passInput.value || '';
+        if(v === CORRECT){
+          // redirect to /discord
+          window.location.href = "https://jamali.tech/discord";
+        } else {
+          errEl.textContent = 'Incorrect password. Try again.';
+          passInput.focus();
+          passInput.select();
+        }
+      }
+
+      loginBtn.addEventListener('click', doLogin);
+      clearBtn.addEventListener('click', ()=>{ passInput.value=''; errEl.textContent=''; passInput.focus(); });
+
+      // allow Enter key
+      passInput.addEventListener('keydown', function(e){
+        if(e.key === 'Enter') doLogin();
+      });
+    })();
+  </script>
+</body>
+</html>
