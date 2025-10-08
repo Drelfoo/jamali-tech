@@ -4,6 +4,14 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin Login — jamali.tech</title>
+
+  <!-- Favicon (only for this page) -->
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+
+  <!-- FontAwesome icons for buttons/headers -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
   <style>
     :root{--bg:#0d1117;--panel:#161b22;--text:#c9d1d9;--accent:#238636;--err:#f85149}
     *{box-sizing:border-box}
@@ -13,7 +21,7 @@
     p{margin:0 0 14px;color:rgba(201,209,217,0.8);font-size:14px}
     input{width:100%;padding:10px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:var(--text);outline:none;font-size:15px}
     .row{display:flex;gap:8px;margin-top:12px}
-    button{flex:1;padding:10px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer;font-weight:600}
+    button{flex:1;padding:10px;border-radius:8px;border:0;background:var(--accent);color:#fff;cursor:pointer;font-weight:600;display:flex;align-items:center;justify-content:center;gap:6px}
     button.secondary{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--text)}
     .error{color:var(--err);margin-top:12px;font-size:14px}
     .note{margin-top:10px;color:rgba(201,209,217,0.7);font-size:13px}
@@ -21,12 +29,12 @@
 </head>
 <body>
   <div class="box" role="main" aria-labelledby="title">
-    <h1 id="title">Admin Access</h1>
-    <p>Enter the admin password to continue to the admin area.</p>
+    <h1 id="title"><i class="fa-solid fa-lock"></i> Admin Access</h1>
+    <p>Enter the password to continue <i class="fa-solid fa-key"></i></p>
 
     <input id="password" type="password" placeholder="Password" aria-label="Password" />
     <div class="row">
-      <button id="loginBtn">Login</button>
+      <button id="loginBtn"><i class="fa-solid fa-arrow-right"></i> Login</button>
       <button id="clearBtn" class="secondary" type="button">Clear</button>
     </div>
 
@@ -36,7 +44,7 @@
 
   <script>
     (function(){
-      const CORRECT = "Spania08"; // changed as requested
+      const CORRECT = "Spania08"; // password
       const loginBtn = document.getElementById('loginBtn');
       const clearBtn = document.getElementById('clearBtn');
       const passInput = document.getElementById('password');
