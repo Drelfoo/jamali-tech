@@ -1,368 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
-<title>Level 1 — Black Panther (Mini Platformer)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platformer — Controlled Player</title>
 <style>
-  :root{
-    --bg:#08020a;
-    --panel:#0f0b12;
-    --accent:#7b3cff; /* purple neon */
-    --neon:#00ff9f;   /* subtle neon green */
-    color-scheme: dark;
-  }
-  html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;}
-  body{background: linear-gradient(180deg,var(--bg) 0%, #0b0520 60%); display:flex; flex-direction:column; align-items:center; gap:12px; padding:18px; color:#ddd;}
-  header{display:flex; gap:18px; align-items:center; width:100%; max-width:1200px; justify-content:space-between;}
-  h1{margin:0; font-size:20px; color:var(--neon); text-shadow:0 0 8px rgba(0,255,159,0.08);}
-  .subtitle{color:#aaa; font-size:13px;}
-  #gameWrap{background:linear-gradient(180deg,#05020a 0%, #080217 100%); border:4px solid rgba(123,60,255,0.12); padding:14px; border-radius:10px; box-shadow:0 12px 40px rgba(0,0,0,0.6);}
-  canvas{display:block; background: linear-gradient(180deg,#060417, #0b0820); border:2px solid rgba(123,60,255,0.14); border-radius:6px;}
-  .controls-row{display:flex; gap:10px; margin-top:10px; justify-content:center; align-items:center;}
-  .btn{
-    background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-    color:var(--neon);
-    border:1px solid rgba(255,255,255,0.04);
-    padding:10px 18px; border-radius:8px; font-weight:700; cursor:pointer; text-shadow:0 0 6px rgba(0,0,0,0.6);
-  }
-  .btn:active{transform:translateY(1px);}
-  .overlay{
-    position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
-    background:linear-gradient(180deg, rgba(4,2,6,0.6), rgba(3,2,10,0.85));
-    z-index:40;
-  }
-  .panel{background:linear-gradient(180deg,var(--panel), #0a0711); border-radius:12px; padding:28px; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,0.6); width:min(720px,92%);}
-  .panel h2{margin:0 0 8px 0; color:var(--accent);}
-  .hint{color:#a8a2b8; margin-top:8px; font-size:13px;}
-  .small{font-size:12px; color:#999;}
-  footer{color:#777; font-size:12px; margin-top:10px;}
-  /* mobile buttons */
-  .touch-controls{display:flex; gap:10px; justify-content:center; margin-top:8px;}
-  .touch-btn{font-size:20px; padding:10px 14px; border-radius:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.02); color:var(--neon);}
-  @media (min-width:900px){ .touch-controls{display:none;} }
+html, body {margin:0; padding:0; overflow:hidden; background:#08020a; font-family:sans-serif;}
+canvas {display:block;}
+.overlay {
+  position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; z-index:100;
+}
+.panel {background:#0f0b12; padding:30px; border-radius:12px; text-align:center;}
+.btn {padding:12px 24px; background:#7b3cff; color:white; border:none; border-radius:8px; font-size:18px; cursor:pointer;}
 </style>
 </head>
 <body>
-<header>
-  <div>
-    <h1>Level 1 — Black Panther</h1>
-    <div class="subtitle">Long jumps • Big world • Parkour-style</div>
-  </div>
-  <div>
-    <button id="muteBtn" class="btn" title="Mute / Unmute">🔊 On</button>
-  </div>
-</header>
+<canvas id="game"></canvas>
 
-<div id="gameWrap">
-  <canvas id="game" width="960" height="600"></canvas>
-  <div class="controls-row">
-    <div class="small">Move: ← → • Jump: ↑ or Tap Jump • Camera follows player</div>
-  </div>
-
-  <!-- Mobile touch controls -->
-  <div class="touch-controls" aria-hidden="true">
-    <button class="touch-btn" id="leftMobile">◀</button>
-    <button class="touch-btn" id="jumpMobile">⤴</button>
-    <button class="touch-btn" id="rightMobile">▶</button>
-  </div>
-</div>
-
-<footer>Tap <strong>Start Game</strong> to begin and enable music (required by browsers).</footer>
-
-<!-- Start overlay -->
 <div id="startOverlay" class="overlay">
   <div class="panel">
-    <h2>Start — Level 1: Black Panther</h2>
-    <p class="hint">All the Stars will play after you tap Start. Use arrow keys or on-screen buttons on mobile.</p>
-    <div style="margin-top:16px;">
-      <button id="startBtn" class="btn">▶ Start Game</button>
-      <button id="demoBtn" class="btn">▶ Demo (no music)</button>
-    </div>
-    <div class="hint" style="margin-top:12px;">Music: <em>All the Stars</em> — Kendrick Lamar &amp; SZA (YouTube)</div>
+    <h2>Start Game</h2>
+    <p>Music: All the Stars — Kendrick Lamar & SZA</p>
+    <button id="startBtn" class="btn">▶ Start</button>
   </div>
 </div>
 
-<!-- Hidden YouTube iframe will be injected after user starts -->
 <script>
 (() => {
-  // --------- Game world settings ----------
-  const canvas = document.getElementById('game');
-  const ctx = canvas.getContext('2d');
-  const W = canvas.width, H = canvas.height;
+const canvas = document.getElementById('game');
+const ctx = canvas.getContext('2d');
+let W = window.innerWidth;
+let H = window.innerHeight;
+canvas.width = W; canvas.height = H;
 
-  // world is wider than viewport (big world)
-  const world = {width: 3200, height: 1200};
+window.addEventListener('resize', () => { W=window.innerWidth; H=window.innerHeight; canvas.width=W; canvas.height=H; });
 
-  // player (parkour-style longer jumps)
-  const player = {
-    x: 120, y: world.height - 220,
-    w: 40, h: 64,
-    vx: 0, vy: 0,
-    speed: 6,
-    jumpPower: 18, // long jumps
-    onGround: false,
-    color: "#ff6b6b"
-  };
+// Platforms
+let platforms = [];
+let platformWidth = 200;
+let startPlatform = {x:100, y:H-150, w:200, h:30};
+platforms.push(startPlatform);
+for(let i=1;i<10;i++){
+  platforms.push({x: startPlatform.x + i*250, y:H-80-Math.random()*150, w:platformWidth, h:30});
+}
 
-  // camera
-  const camera = {x:0, y:0, w:W, h:H, smoothing:0.15};
+// Player on the first platform
+const player = {x:startPlatform.x + 50, y:startPlatform.y - 70, w:50, h:70, color:"#ff6b6b", speed:6, jumpPower:18, vx:0, vy:0, onGround:false};
 
-  // platforms (sample long parkour line)
-  const platforms = [
-    {x:0,y:world.height-80,w:world.width,h:80}, // ground
-    {x:180,y:world.height-200,w:260,h:18},
-    {x:520,y:world.height-320,w:220,h:18},
-    {x:820,y:world.height-420,w:160,h:18},
-    {x:1100,y:world.height-520,w:200,h:18},
-    {x:1420,y:world.height-380,w:200,h:18},
-    {x:1680,y:world.height-260,w:140,h:18},
-    {x:1900,y:world.height-360,w:260,h:18},
-    {x:2240,y:world.height-480,w:160,h:18},
-    {x:2480,y:world.height-340,w:300,h:18},
-    {x:2860,y:world.height-220,w:240,h:18}
-  ];
+const gravity = 0.9;
+let keys={left:false,right:false,jump:false};
 
-  // stars / decoration (cosmic)
-  const stars = [];
-  for(let i=0;i<150;i++){
-    stars.push({
-      x: Math.random()*world.width,
-      y: Math.random()*(world.height*0.5),
-      r: Math.random()*1.5+0.4,
-      glow: Math.random()*0.9
-    });
-  }
+// Camera
+let camera={x:0,y:0,smooth:0.1};
 
-  // controls
-  const keys = {left:false,right:false,jump:false};
-  window.addEventListener('keydown', e => {
-    if(e.key === 'ArrowLeft') keys.left = true;
-    if(e.key === 'ArrowRight') keys.right = true;
-    if(e.key === 'ArrowUp' || e.key === ' ') keys.jump = true;
-  });
-  window.addEventListener('keyup', e => {
-    if(e.key === 'ArrowLeft') keys.left = false;
-    if(e.key === 'ArrowRight') keys.right = false;
-    if(e.key === 'ArrowUp' || e.key === ' ') keys.jump = false;
-  });
+// Stars background
+const stars=[];
+for(let i=0;i<100;i++){stars.push({x:Math.random()*5000,y:Math.random()*H/2,r:Math.random()*2+0.5});}
 
-  // mobile buttons
-  const leftMobile = document.getElementById('leftMobile');
-  const rightMobile = document.getElementById('rightMobile');
-  const jumpMobile = document.getElementById('jumpMobile');
-  if(leftMobile) {
-    leftMobile.addEventListener('touchstart', ()=>keys.left=true);
-    leftMobile.addEventListener('touchend', ()=>keys.left=false);
-    rightMobile.addEventListener('touchstart', ()=>keys.right=true);
-    rightMobile.addEventListener('touchend', ()=>keys.right=false);
-    jumpMobile.addEventListener('touchstart', ()=>{ keys.jump=true; setTimeout(()=>keys.jump=false,120); });
-  }
+// Controls
+window.addEventListener('keydown', e=>{
+  if(e.key==='ArrowLeft') keys.left=true;
+  if(e.key==='ArrowRight') keys.right=true;
+  if(e.key==='ArrowUp'||e.key===' ') keys.jump=true;
+});
+window.addEventListener('keyup', e=>{
+  if(e.key==='ArrowLeft') keys.left=false;
+  if(e.key==='ArrowRight') keys.right=false;
+  if(e.key==='ArrowUp'||e.key===' ') keys.jump=false;
+});
 
-  // physics
-  const gravity = 0.9;
-  const friction = 0.86;
+function resetPlayer(){
+  player.x = startPlatform.x + 50;
+  player.y = startPlatform.y - player.h;
+  player.vx=0; player.vy=0;
+}
 
-  // game state
-  let running = false;
-  let musicOn = true;
-  const muteBtn = document.getElementById('muteBtn');
-  muteBtn.addEventListener('click', () => {
-    musicOn = !musicOn;
-    muteBtn.textContent = musicOn ? '🔊 On' : '🔇 Off';
-    // toggle iframe audio by setting src to empty or back (simple mute approach)
-    const iframe = document.getElementById('ytplayer');
-    if(iframe) {
-      // Using postMessage to control player would be cleaner, but for simplicity toggle visibility to stop audio
-      iframe.style.display = musicOn ? 'block' : 'none';
-    }
-  });
+function updatePlayer(){
+  // movement
+  player.vx=0;
+  if(keys.left) player.vx=-player.speed;
+  if(keys.right) player.vx=player.speed;
 
-  // --- collision helpers ---
-  function rectIntersect(a,b){
-    return !(a.x + a.w < b.x || a.x > b.x + b.w || a.y + a.h < b.y || a.y > b.y + b.h);
-  }
-
-  function updatePlayer(){
-    // horizontal
-    if(keys.left) player.vx = -player.speed;
-    else if(keys.right) player.vx = player.speed;
-    else player.vx *= friction;
-
-    // jump (only when onGround)
-    if(keys.jump && player.onGround){
-      player.vy = -player.jumpPower;
-      player.onGround = false;
-    }
-
-    // apply gravity
-    player.vy += gravity;
-    player.x += player.vx;
-    player.y += player.vy;
-
-    // world bounds
-    if(player.x < 0) player.x = 0;
-    if(player.x + player.w > world.width) player.x = world.width - player.w;
-    if(player.y > world.height) { player.x = 120; player.y = world.height - 220; player.vy = 0; } // reset fall
-
-    // platform collisions (simple AABB)
+  // jump only if on ground
+  if(keys.jump && player.onGround){
+    player.vy = -player.jumpPower;
     player.onGround = false;
-    for(const p of platforms){
-      const platRect = {x:p.x, y:p.y, w:p.w, h:p.h};
-      if(player.x + player.w > platRect.x && player.x < platRect.x + platRect.w){
-        if(player.y + player.h > platRect.y && player.y + player.h < platRect.y + platRect.h + 20 && player.vy >= 0){
-          player.y = platRect.y - player.h;
-          player.vy = 0;
-          player.onGround = true;
-        }
+    keys.jump = false; // prevent repeated mid-air jumps
+  }
+
+  player.vy += gravity;
+  player.x += player.vx;
+  player.y += player.vy;
+
+  player.onGround=false;
+  for(const p of platforms){
+    // landing on top
+    if(player.x+player.w>p.x && player.x<p.x+p.w){
+      if(player.y+player.h>p.y && player.y+player.h<p.y+p.h+20 && player.vy>=0){
+        player.y=p.y-player.h;
+        player.vy=0;
+        player.onGround=true;
+      }
+      // hitting from below
+      if(player.y< p.y + p.h && player.y+player.h>p.y && player.vy<0){
+        resetPlayer();
       }
     }
   }
 
-  // camera follow
-  function updateCamera(){
-    const targetX = player.x + player.w/2 - camera.w/2;
-    const targetY = player.y + player.h/2 - camera.h/2;
-    camera.x += (targetX - camera.x) * camera.smoothing;
-    camera.y += (targetY - camera.y) * camera.smoothing;
-    // clamp
-    if(camera.x < 0) camera.x = 0;
-    if(camera.y < 0) camera.y = 0;
-    if(camera.x + camera.w > world.width) camera.x = world.width - camera.w;
-    if(camera.y + camera.h > world.height) camera.y = world.height - camera.h;
+  // fell off screen
+  if(player.y > H){
+    resetPlayer();
   }
 
-  // draw
-  function draw(){
-    // clear viewport
-    ctx.clearRect(0,0,W,H);
-
-    // background gradient (cosmic)
-    ctx.save();
-    ctx.fillStyle = '#050015';
-    ctx.fillRect(0,0,W,H);
-
-    // stars (parallax)
-    for(const s of stars){
-      const sx = s.x - camera.x*0.6;
-      const sy = s.y - camera.y*0.3;
-      ctx.beginPath();
-      ctx.fillStyle = `rgba(255,255,255,${0.3 + s.glow*0.7})`;
-      ctx.arc(sx, sy, s.r, 0, Math.PI*2);
-      ctx.fill();
-    }
-    ctx.restore();
-
-    // neon vignette
-    ctx.save();
-    ctx.globalCompositeOperation = 'overlay';
-    const grad = ctx.createLinearGradient(0,0,W,0);
-    grad.addColorStop(0, 'rgba(123,60,255,0.08)');
-    grad.addColorStop(1, 'rgba(0,0,0,0.0)');
-    ctx.fillStyle = grad;
-    ctx.fillRect(0,0,W,H);
-    ctx.restore();
-
-    // draw platforms
-    ctx.save();
-    ctx.translate(-camera.x, -camera.y);
-    for(const p of platforms){
-      // platform base
-      ctx.fillStyle = '#0f3b2e';
-      ctx.fillRect(p.x, p.y, p.w, p.h);
-      // accent line
-      ctx.fillStyle = 'rgba(123,60,255,0.12)';
-      ctx.fillRect(p.x, p.y-6, p.w, 4);
-    }
-
-    // draw player (with glow)
-    ctx.fillStyle = player.color;
-    ctx.shadowColor = 'rgba(123,60,255,0.25)';
-    ctx.shadowBlur = 18;
-    ctx.fillRect(player.x, player.y, player.w, player.h);
-    ctx.shadowBlur = 0;
-
-    // HUD: level title
-    ctx.resetTransform();
-    ctx.fillStyle = 'rgba(255,255,255,0.9)';
-    ctx.font = '18px Inter, sans-serif';
-    ctx.fillText('Level 1 — Black Panther', 14, 26);
-    ctx.fillStyle = 'rgba(255,255,255,0.55)';
-    ctx.font = '12px Inter, sans-serif';
-    ctx.fillText(`Long jumps • Parkour • ${Math.floor(player.x)}/${world.width}`, 14, 44);
+  // generate new platforms if moving right
+  const last = platforms[platforms.length-1];
+  if(player.x + 400 > last.x){
+    platforms.push({x:last.x + Math.random()*150 + 150, y:H-80-Math.random()*150, w:platformWidth, h:30});
   }
+}
 
-  // main loop
-  function loop(){
-    if(running){
-      updatePlayer();
-      updateCamera();
-      draw();
-    }
-    requestAnimationFrame(loop);
-  }
+function updateCamera(){
+  const targetX = player.x - W/3;
+  const targetY = player.y - H/2;
+  camera.x += (targetX - camera.x) * camera.smooth;
+  camera.y += (targetY - camera.y) * camera.smooth;
+}
+
+function draw(){
+  ctx.fillStyle="#050015"; ctx.fillRect(0,0,W,H);
+  for(const s of stars){ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(s.x-camera.x*0.5,s.y,s.r,0,Math.PI*2);ctx.fill();}
+  ctx.save(); ctx.translate(-camera.x,-camera.y);
+  for(const p of platforms){ctx.fillStyle="#0f3b2e";ctx.fillRect(p.x,p.y,p.w,p.h);}
+  ctx.fillStyle=player.color; ctx.fillRect(player.x,player.y,player.w,player.h);
+  ctx.restore();
+}
+
+function loop(){if(running){updatePlayer(); updateCamera(); draw();} requestAnimationFrame(loop);}
+let running=false;
+
+function startGame(){
+  running=true;
   loop();
+  // YouTube music autoplay
+  const VIDEO_ID='JQbjS0_ZfJ0';
+  const iframe=document.createElement('iframe');
+  iframe.src=`https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&loop=1&playlist=${VIDEO_ID}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
+  iframe.allow='autoplay; encrypted-media';
+  iframe.style.position='fixed'; iframe.style.left='-9999px'; iframe.style.width='1px'; iframe.style.height='1px'; iframe.style.opacity='0';
+  document.body.appendChild(iframe);
+}
 
-  // --------- Start / Music (YouTube embed) ----------
-  const startOverlay = document.getElementById('startOverlay');
-  const startBtn = document.getElementById('startBtn');
-  const demoBtn = document.getElementById('demoBtn');
-
-  // official All The Stars video id (Kendrick Lamar & SZA)
-  const VIDEO_ID = 'JQbjS0_ZfJ0'; // verified official video id. :contentReference[oaicite:1]{index=1}
-
-  function injectYouTubeAutoplay(){
-    // create iframe only after user interacts (avoids autoplay block)
-    if(document.getElementById('ytplayer')) return;
-    const iframe = document.createElement('iframe');
-    iframe.id = 'ytplayer';
-    // autoplay=1 loop=1 playlist=VIDEO_ID ensures looping
-    iframe.src = `https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&loop=1&playlist=${VIDEO_ID}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
-    iframe.allow = 'autoplay; encrypted-media';
-    // hide the iframe but keep it in DOM
-    iframe.style.position = 'fixed';
-    iframe.style.left = '-9999px';
-    iframe.style.width = '1px';
-    iframe.style.height = '1px';
-    iframe.style.opacity = '0';
-    iframe.setAttribute('aria-hidden','true');
-    document.body.appendChild(iframe);
-    return iframe;
-  }
-
-  startBtn.addEventListener('click', () => {
-    injectYouTubeAutoplay(); // start music
-    running = true;
-    startOverlay.style.display = 'none';
-  });
-
-  // demo (no music)
-  demoBtn.addEventListener('click', () => {
-    running = true;
-    startOverlay.style.display = 'none';
-  });
-
-  // optional: let user tap canvas to start if overlay removed accidentally
-  canvas.addEventListener('touchstart', () => {
-    // cheap safety: if game not running, prompt start overlay
-    if(!running) startOverlay.style.display = 'flex';
-  });
-
-  // prevent accidental scrolling on mobile while playing
-  document.addEventListener('touchmove', (e) => { if(running) e.preventDefault(); }, { passive:false });
-
-  // make canvas responsive: keep aspect but fit width
-  function resizeCanvas(){
-    const maxWidth = Math.min(window.innerWidth - 40, 1200);
-    const scale = Math.min(maxWidth / W, (window.innerHeight - 160) / H);
-    const cssW = Math.round(W * scale);
-    const cssH = Math.round(H * scale);
-    canvas.style.width = cssW + 'px';
-    canvas.style.height = cssH + 'px';
-  }
-  window.addEventListener('resize', resizeCanvas);
-  resizeCanvas();
-
+document.getElementById('startBtn').addEventListener('click', ()=>{
+  document.getElementById('startOverlay').style.display='none';
+  startGame();
+});
 })();
 </script>
 </body>
