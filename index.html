@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Platformer — Controlled Player</title>
+
+<!-- Favicon for jamali.tech -->
+<link rel="icon" type="image/png" sizes="512x512" href="/3D.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/3D.png">
+
 <style>
 html, body {margin:0; padding:0; overflow:hidden; background:#08020a; font-family:sans-serif;}
 canvas {display:block;}
@@ -44,9 +49,8 @@ for(let i=1;i<10;i++){
   platforms.push({x: startPlatform.x + i*250, y:H-80-Math.random()*150, w:platformWidth, h:30});
 }
 
-// Player on the first platform
+// Player
 const player = {x:startPlatform.x + 50, y:startPlatform.y - 70, w:50, h:70, color:"#ff6b6b", speed:6, jumpPower:18, vx:0, vy:0, onGround:false};
-
 const gravity = 0.9;
 let keys={left:false,right:false,jump:false};
 
@@ -76,16 +80,13 @@ function resetPlayer(){
 }
 
 function updatePlayer(){
-  // movement
   player.vx=0;
   if(keys.left) player.vx=-player.speed;
   if(keys.right) player.vx=player.speed;
-
-  // jump only if on ground
   if(keys.jump && player.onGround){
     player.vy = -player.jumpPower;
     player.onGround = false;
-    keys.jump = false; // prevent repeated mid-air jumps
+    keys.jump = false;
   }
 
   player.vy += gravity;
@@ -94,26 +95,21 @@ function updatePlayer(){
 
   player.onGround=false;
   for(const p of platforms){
-    // landing on top
     if(player.x+player.w>p.x && player.x<p.x+p.w){
       if(player.y+player.h>p.y && player.y+player.h<p.y+p.h+20 && player.vy>=0){
         player.y=p.y-player.h;
         player.vy=0;
         player.onGround=true;
       }
-      // hitting from below
       if(player.y< p.y + p.h && player.y+player.h>p.y && player.vy<0){
         resetPlayer();
       }
     }
   }
-
-  // fell off screen
   if(player.y > H){
     resetPlayer();
   }
 
-  // generate new platforms if moving right
   const last = platforms[platforms.length-1];
   if(player.x + 400 > last.x){
     platforms.push({x:last.x + Math.random()*150 + 150, y:H-80-Math.random()*150, w:platformWidth, h:30});
@@ -142,7 +138,6 @@ let running=false;
 function startGame(){
   running=true;
   loop();
-  // YouTube music autoplay
   const VIDEO_ID='JQbjS0_ZfJ0';
   const iframe=document.createElement('iframe');
   iframe.src=`https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&loop=1&playlist=${VIDEO_ID}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
