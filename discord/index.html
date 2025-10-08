@@ -1,40 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Join Jamali Discord</title>
+  <title>Join Discord — jamali.tech</title>
+
+  <!-- Favicon for this page -->
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/favicon.png">
+
+  <!-- FontAwesome for icons if needed -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+
   <style>
     body {
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
-      margin:0;
-      background:#5865F2;
-      font-family:sans-serif;
-      color:white;
-      flex-direction:column;
-      text-align:center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      background: #0d1117;
+      color: #c9d1d9;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial;
+      text-align: center;
+      margin: 0;
     }
-    .btn {
-      padding:20px 40px;
-      background:#7289DA;
-      border:none;
-      border-radius:12px;
-      font-size:24px;
-      cursor:pointer;
-      color:white;
-      text-decoration:none;
-      margin-top:20px;
-      transition: transform 0.2s;
+    .box {
+      background: #161b22;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.4);
     }
-    .btn:hover { transform: scale(1.1); }
+    a {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 10px 16px;
+      background: #5865F2;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+    a:hover { background: #4752c4; }
   </style>
 </head>
 <body>
-  <h1>Welcome to Jamali Discord!</h1>
-  <p>Click the button below to join our server:</p>
-  <a href="https://discord.gg/VMPpcr5PeJ" target="_blank" class="btn">Join Discord 💬</a>
+  <div class="box">
+    <h1><i class="fa-brands fa-discord"></i> Join our Discord!</h1>
+    <p>Click the button below to join:</p>
+    <a href="https://discord.gg/3Gm3weXN7A" target="_blank"><i class="fa-brands fa-discord"></i> Join Now</a>
+  </div>
 </body>
 </html>
