@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+v<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,10 +7,11 @@
         body { background: #0d0d0d; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .container { width: 90%; max-width: 800px; text-align: center; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
-        .card { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 1px solid #333; }
+        .card { background: #161616; padding: 40px; border-radius: 15px; border: 1px solid #333; }
         .name { color: #888; font-size: 1.2rem; margin-bottom: 10px; }
-        .count { font-size: 3.5rem; font-weight: bold; color: #ff253a; }
-        .diff-box { background: linear-gradient(90deg, #880e11, #293556); padding: 20px; border-radius: 15px; }
+        .count { font-size: 4rem; font-weight: bold; color: #ff253a; }
+        .diff-box { background: linear-gradient(90deg, #880e11, #293556); padding: 20px; border-radius: 10px; }
+        .diff-label { font-size: 0.8rem; letter-spacing: 2px; }
         .diff-value { font-size: 3rem; font-weight: bold; }
     </style>
 </head>
@@ -20,48 +21,48 @@
     <div class="grid">
         <div class="card">
             <div class="name">Hsmoits</div>
-            <div class="count" id="hs-count">Loading...</div>
+            <div id="hs-count" class="count">--</div>
         </div>
         <div class="card">
             <div class="name">Slipzy</div>
-            <div class="count" id="sl-count">Loading...</div>
+            <div id="sl-count" class="count">--</div>
         </div>
     </div>
     <div class="diff-box">
-        <div class="diff-label">DIFFERENCE</div>
-        <div class="diff-value" id="diff-total">0</div>
+        <div class="diff-label">SUBSCRIBER DIFFERENCE</div>
+        <div id="diff-total" class="diff-value">--</div>
     </div>
 </div>
 
 <script>
-    // These are the IDs from the YouTube links you gave me
-    const hsID = "UCTuC24xs84SjkcWiUJMipiw";
-    const slID = "UC_dC2t2tNt0ud25kXptF2Xw";
-
+    // This function fetches the data from the livecount source
     async function updateCounts() {
         try {
-            // Fetching data for Hsmoits
-            const res1 = await fetch(`https://api.subscribercounter.com/api/youtube/subcount/${hsID}`);
-            const data1 = await res1.json();
-            
-            // Fetching data for Slipzy
-            const res2 = await fetch(`https://api.subscribercounter.com/api/youtube/subcount/${slID}`);
-            const data2 = await res2.json();
+            // Channel IDs from your links
+            const hsID = "UCTuC24xs84SjkcWiUJMipiw";
+            const slID = "UC_dC2t2tNt0ud25kXptF2Xw";
 
-            const hsCount = data1.subCount;
-            const slCount = data2.subCount;
+            // We use a public proxy to get the data without needing a private API key
+            const response = await fetch(`https://api.subscribercounter.nl/api/youtube-subscriber-count/${hsID}/live`);
+            const data = await response.json();
+            
+            const response2 = await fetch(`https://api.subscribercounter.nl/api/youtube-subscriber-count/${slID}/live`);
+            const data2 = await response2.json();
+
+            const hsCount = data.count;
+            const slCount = data2.count;
 
             document.getElementById('hs-count').innerText = hsCount.toLocaleString();
             document.getElementById('sl-count').innerText = slCount.toLocaleString();
             document.getElementById('diff-total').innerText = Math.abs(hsCount - slCount).toLocaleString();
             
-        } catch (e) {
+        } catch (error) {
             console.log("Waiting for data...");
         }
     }
 
-    // Runs every 5 seconds
-    setInterval(updateCounts, 5000);
+    // Refresh every 2 seconds
+    setInterval(updateCounts, 2000);
     updateCounts();
 </script>
 
