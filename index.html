@@ -1,66 +1,86 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>Hsmoits vs Slipzy LIVE</title>
     <style>
         body {
-            background: #0d0d0d;
-            color: white;
-            font-family: sans-serif;
+            background-color: #050505;
+            color: #fff;
+            font-family: 'Arial Black', sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             height: 100vh;
-            overflow: hidden;
         }
-        .main-container {
-            width: 95%;
-            max-width: 1200px;
-            text-align: center;
-        }
-        /* This hides the extra junk from the source site so you only see the numbers */
-        .count-frame {
-            width: 100%;
-            height: 400px;
-            border: 2px solid #333;
-            border-radius: 15px;
-            background: #111;
-        }
-        .header {
-            font-size: 2rem;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            color: #ff253a;
-        }
-        .grid {
+
+        .battle-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 20px;
+            gap: 10px;
+            width: 95%;
+            max-width: 1100px;
         }
+
+        .card {
+            background: #000;
+            border: 2px solid #222;
+            border-radius: 15px;
+            height: 480px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* The Green Banner for Hsmoits */
+        .hs-banner {
+            height: 80px;
+            background: #7fff00;
+            width: 100%;
+            position: absolute;
+            top: 0;
+            z-index: 5;
+            box-shadow: 0 4px 15px rgba(127, 255, 0, 0.4);
+        }
+
+        /* Bypassing the blank screen by using socialcounts */
+        iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+            margin-top: -80px; /* Hides the top nav of the viewer */
+        }
+
+        .gap-box {
+            margin-top: 20px;
+            background: linear-gradient(90deg, #ff0000 0%, #0000ff 100%);
+            padding: 15px 60px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
+        }
+
+        .gap-number { font-size: 2.5rem; font-weight: 900; }
+        .gap-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 2px; }
     </style>
 </head>
 <body>
 
-    <div class="main-container">
-        <div class="header">Live Subscriber Battle</div>
-        
-        <div class="grid">
-            <iframe 
-                class="count-frame" 
-                src="https://livecounts.io/embed/youtube-live-subscriber-counter/UCTuC24xs84SjkcWiUJMipiw" 
-                style="border:none;">
-            </iframe>
-
-            <iframe 
-                class="count-frame" 
-                src="https://livecounts.io/embed/youtube-live-subscriber-counter/UC_dC2t2tNt0ud25kXptF2Xw" 
-                style="border:none;">
-            </iframe>
+    <div class="battle-grid">
+        <div class="card">
+            <div class="hs-banner"></div>
+            <iframe src="https://socialcounts.org/youtube-live-subscriber-count/UCTuC24xs84SjkcWiUJMipiw/embed"></iframe>
         </div>
+
+        <div class="card">
+            <iframe src="https://socialcounts.org/youtube-live-subscriber-count/UC_dC2t2tNt0ud25kXptF2Xw/embed"></iframe>
+        </div>
+    </div>
+
+    <div class="gap-box">
+        <div class="gap-number">LIVE</div>
+        <div class="gap-label">Subscriber Gap</div>
     </div>
 
 </body>
