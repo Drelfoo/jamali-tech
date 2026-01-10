@@ -2,86 +2,43 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Hsmoits vs Slipzy LIVE</title>
+    <title>Hsmoits vs Slipzy | LIVE</title>
     <style>
-        body {
-            background-color: #050505;
-            color: #fff;
-            font-family: 'Arial Black', sans-serif;
-            margin: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
-
-        .battle-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            width: 95%;
-            max-width: 1100px;
-        }
-
-        .card {
-            background: #000;
-            border: 2px solid #222;
-            border-radius: 15px;
-            height: 480px;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* The Green Banner for Hsmoits */
-        .hs-banner {
-            height: 80px;
-            background: #7fff00;
-            width: 100%;
-            position: absolute;
-            top: 0;
-            z-index: 5;
-            box-shadow: 0 4px 15px rgba(127, 255, 0, 0.4);
-        }
-
-        /* Bypassing the blank screen by using socialcounts */
-        iframe {
-            width: 100%;
-            height: 600px;
-            border: none;
-            margin-top: -80px; /* Hides the top nav of the viewer */
-        }
-
-        .gap-box {
-            margin-top: 20px;
-            background: linear-gradient(90deg, #ff0000 0%, #0000ff 100%);
-            padding: 15px 60px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(255, 0, 0, 0.2);
-        }
-
-        .gap-number { font-size: 2.5rem; font-weight: 900; }
-        .gap-label { font-size: 0.7rem; color: #aaa; text-transform: uppercase; letter-spacing: 2px; }
+        body { background: #000; color: #fff; font-family: 'Arial Black', sans-serif; height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 90%; max-width: 1000px; }
+        .card { background: #0d0d0d; border: 2px solid #222; border-radius: 15px; padding: 40px; text-align: center; position: relative; }
+        .hs-banner { position: absolute; top: 0; left: 0; width: 100%; height: 10px; background: #7fff00; border-radius: 15px 15px 0 0; }
+        .name { font-size: 1.5rem; margin-bottom: 10px; color: #aaa; }
+        .count { font-size: 5rem; font-weight: 900; color: #ff253a; }
+        .gap-box { margin-top: 30px; background: linear-gradient(90deg, #ff0000, #0000ff); padding: 20px 80px; border-radius: 10px; font-size: 2.5rem; }
     </style>
 </head>
 <body>
-
-    <div class="battle-grid">
+    <div class="grid">
         <div class="card">
             <div class="hs-banner"></div>
-            <iframe src="https://socialcounts.org/youtube-live-subscriber-count/UCTuC24xs84SjkcWiUJMipiw/embed"></iframe>
+            <div class="name">Hsmoits</div>
+            <div id="hs-count" class="count">--</div>
         </div>
-
         <div class="card">
-            <iframe src="https://socialcounts.org/youtube-live-subscriber-count/UC_dC2t2tNt0ud25kXptF2Xw/embed"></iframe>
+            <div class="name">Slipzy</div>
+            <div id="sl-count" class="count">--</div>
         </div>
     </div>
+    <div class="gap-box" id="gap">--</div>
 
-    <div class="gap-box">
-        <div class="gap-number">LIVE</div>
-        <div class="gap-label">Subscriber Gap</div>
-    </div>
-
+    <script>
+        async function getSubs() {
+            // Using a public data bridge that doesn't block GitHub
+            const hs = await fetch('https://api.subscribercounter.nl/api/youtube-subscriber-count/UCTuC24xs84SjkcWiUJMipiw/live').then(r => r.json());
+            const sl = await fetch('https://api.subscribercounter.nl/api/youtube-subscriber-count/UC_dC2t2tNt0ud25kXptF2Xw/live').then(r => r.json());
+            
+            document.getElementById('hs-count').innerText = hs.count.toLocaleString();
+            document.getElementById('sl-count').innerText = sl.count.toLocaleString();
+            document.getElementById('gap').innerText = Math.abs(hs.count - sl.count).toLocaleString();
+        }
+        setInterval(getSubs, 5000);
+        getSubs();
+    </script>
 </body>
 </html>
