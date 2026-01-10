@@ -2,120 +2,60 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hsmoits vs Slipzy | LIVE BATTLE</title>
+    <title>LIVE SUB BATTLE</title>
     <style>
-        /* PRO DARK THEME */
-        body {
-            background-color: #050505;
-            color: white;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        .battle-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 30px;
-            width: 90%;
-            max-width: 1100px;
-        }
-
-        .card {
-            background: #111;
-            border-radius: 20px;
-            padding: 40px 20px;
-            text-align: center;
-            border: 2px solid #222;
-            transition: transform 0.3s ease;
-            position: relative;
-        }
-
-        .card:hover { transform: scale(1.02); border-color: #444; }
-
-        /* BANNERS */
-        .card::before {
-            content: "";
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 12px;
-            border-radius: 20px 20px 0 0;
-        }
-        .hsmoits::before { background: #7fff00; box-shadow: 0 5px 15px rgba(127, 255, 0, 0.4); }
-        .slipzy::before { background: #ff253a; box-shadow: 0 5px 15px rgba(255, 37, 58, 0.4); }
-
-        .name { font-size: 2rem; font-weight: 800; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 2px; }
-        .count { font-size: 5.5rem; font-weight: 900; font-family: 'Courier New', monospace; color: #fff; }
-
-        /* GAP BOX */
-        .gap-section {
-            margin-top: 50px;
-            text-align: center;
-        }
-        .gap-label { font-size: 1.2rem; color: #888; text-transform: uppercase; margin-bottom: 5px; }
-        .gap-number {
-            background: linear-gradient(90deg, #ff253a, #7fff00);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-size: 4rem;
-            font-weight: 900;
-        }
-
-        .status { font-size: 0.9rem; color: #444; margin-top: 20px; }
+        body { background: #000; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 90%; }
+        .card { background: #111; border: 4px solid #333; border-radius: 20px; padding: 50px 20px; text-align: center; }
+        .name { font-size: 2rem; margin-bottom: 20px; color: #888; text-transform: uppercase; }
+        .count { font-size: 6rem; font-weight: bold; font-family: monospace; }
+        #gap-box { margin-top: 40px; font-size: 3rem; color: #7fff00; background: #222; padding: 10px 50px; border-radius: 50px; }
+        .status { margin-top: 10px; font-size: 0.8rem; color: #444; }
     </style>
 </head>
 <body>
 
-    <div class="battle-container">
-        <div class="card hsmoits">
+    <div class="grid">
+        <div class="card">
             <div class="name">Hsmoits</div>
-            <div id="hs-count" class="count">0</div>
+            <div id="hs-count" class="count">LOADING</div>
         </div>
-
-        <div class="card slipzy">
+        <div class="card">
             <div class="name">Slipzy</div>
-            <div id="sl-count" class="count">0</div>
+            <div id="sl-count" class="count">LOADING</div>
         </div>
     </div>
 
-    <div class="gap-section">
-        <div class="gap-label">Subscriber Gap</div>
-        <div id="gap-count" class="gap-number">0</div>
-    </div>
-
-    <div class="status">LIVE UPDATING EVERY 2 SECONDS</div>
+    <div id="gap-box">GAP: --</div>
+    <div class="status" id="debug">Connecting to YouTube Data Stream...</div>
 
     <script>
-        async function updateCounts() {
+        async function getStats() {
             try {
-                // Fetching from a direct JSON data source (API)
-                const hsResponse = await fetch('https://api.subscribercounter.nl/api/youtube-subscriber-count/UCTuC24xs84SjkcWiUJMipiw/live');
-                const slResponse = await fetch('https://api.subscribercounter.nl/api/youtube-subscriber-count/UC_dC2t2tNt0ud25kXptF2Xw/live');
+                // Using Mixerno's public endpoint - very stable for 2026
+                const hsRes = await fetch('https://mixerno.space/api/youtube-channel-counter/user/UCTuC24xs84SjkcWiUJMipiw');
+                const slRes = await fetch('https://mixerno.space/api/youtube-channel-counter/user/UC_dC2t2tNt0ud25kXptF2Xw');
                 
-                const hsData = await hsResponse.json();
-                const slData = await slResponse.json();
+                const hsData = await hsRes.json();
+                const slData = await slRes.json();
 
-                const hsVal = hsData.count;
-                const slVal = slData.count;
+                // Mixerno uses .counts[0].count for the sub value
+                const hsVal = hsData.counts[0].count;
+                const slVal = slData.counts[0].count;
 
-                // Update UI
                 document.getElementById('hs-count').innerText = hsVal.toLocaleString();
                 document.getElementById('sl-count').innerText = slVal.toLocaleString();
-                document.getElementById('gap-count').innerText = Math.abs(hsVal - slVal).toLocaleString();
+                document.getElementById('gap-box').innerText = "GAP: " + Math.abs(hsVal - slVal).toLocaleString();
+                document.getElementById('debug').innerText = "STREAMS ACTIVE - UPDATED AT " + new Date().toLocaleTimeString();
 
-            } catch (error) {
-                console.log("Waiting for API connection...");
+            } catch (err) {
+                document.getElementById('debug').innerText = "ERROR: Bridge Busy. Retrying...";
+                console.error(err);
             }
         }
 
-        // Run every 2 seconds
-        setInterval(updateCounts, 2000);
-        updateCounts(); // Initial call
+        setInterval(getStats, 2000);
+        getStats();
     </script>
 </body>
 </html>
