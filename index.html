@@ -1,156 +1,69 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Platformer — Controlled Player</title>
-
-<!-- Favicon for jamali.tech -->
-<link rel="icon" type="image/png" sizes="512x512" href="/3D.png">
-<link rel="apple-touch-icon" sizes="180x180" href="/3D.png">
-
-<style>
-html, body {margin:0; padding:0; overflow:hidden; background:#08020a; font-family:sans-serif;}
-canvas {display:block;}
-.overlay {
-  position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); display:flex; align-items:center; justify-content:center; z-index:100;
-}
-.panel {background:#0f0b12; padding:30px; border-radius:12px; text-align:center;}
-.btn {padding:12px 24px; background:#7b3cff; color:white; border:none; border-radius:8px; font-size:18px; cursor:pointer;}
-</style>
+    <meta charset="UTF-8">
+    <title>LIVE: Hsmoits vs Slipzy</title>
+    <style>
+        body { background: #0d0d0d; color: white; font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { width: 90%; max-width: 800px; text-align: center; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .card { background: #1a1a1a; padding: 30px; border-radius: 15px; border: 1px solid #333; }
+        .name { color: #888; font-size: 1.2rem; margin-bottom: 10px; }
+        .count { font-size: 3.5rem; font-weight: bold; color: #ff253a; }
+        .diff-box { background: linear-gradient(90deg, #880e11, #293556); padding: 20px; border-radius: 15px; }
+        .diff-value { font-size: 3rem; font-weight: bold; }
+    </style>
 </head>
 <body>
-<canvas id="game"></canvas>
 
-<div id="startOverlay" class="overlay">
-  <div class="panel">
-    <h2>Start Game</h2>
-    <p>Music: All the Stars — Kendrick Lamar & SZA</p>
-    <button id="startBtn" class="btn">▶ Start</button>
-  </div>
+<div class="container">
+    <div class="grid">
+        <div class="card">
+            <div class="name">Hsmoits</div>
+            <div class="count" id="hs-count">Loading...</div>
+        </div>
+        <div class="card">
+            <div class="name">Slipzy</div>
+            <div class="count" id="sl-count">Loading...</div>
+        </div>
+    </div>
+    <div class="diff-box">
+        <div class="diff-label">DIFFERENCE</div>
+        <div class="diff-value" id="diff-total">0</div>
+    </div>
 </div>
 
 <script>
-(() => {
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-let W = window.innerWidth;
-let H = window.innerHeight;
-canvas.width = W; canvas.height = H;
+    // These are the IDs from the YouTube links you gave me
+    const hsID = "UCTuC24xs84SjkcWiUJMipiw";
+    const slID = "UC_dC2t2tNt0ud25kXptF2Xw";
 
-window.addEventListener('resize', () => { W=window.innerWidth; H=window.innerHeight; canvas.width=W; canvas.height=H; });
+    async function updateCounts() {
+        try {
+            // Fetching data for Hsmoits
+            const res1 = await fetch(`https://api.subscribercounter.com/api/youtube/subcount/${hsID}`);
+            const data1 = await res1.json();
+            
+            // Fetching data for Slipzy
+            const res2 = await fetch(`https://api.subscribercounter.com/api/youtube/subcount/${slID}`);
+            const data2 = await res2.json();
 
-// Platforms
-let platforms = [];
-let platformWidth = 200;
-let startPlatform = {x:100, y:H-150, w:200, h:30};
-platforms.push(startPlatform);
-for(let i=1;i<10;i++){
-  platforms.push({x: startPlatform.x + i*250, y:H-80-Math.random()*150, w:platformWidth, h:30});
-}
+            const hsCount = data1.subCount;
+            const slCount = data2.subCount;
 
-// Player
-const player = {x:startPlatform.x + 50, y:startPlatform.y - 70, w:50, h:70, color:"#ff6b6b", speed:6, jumpPower:18, vx:0, vy:0, onGround:false};
-const gravity = 0.9;
-let keys={left:false,right:false,jump:false};
-
-// Camera
-let camera={x:0,y:0,smooth:0.1};
-
-// Stars background
-const stars=[];
-for(let i=0;i<100;i++){stars.push({x:Math.random()*5000,y:Math.random()*H/2,r:Math.random()*2+0.5});}
-
-// Controls
-window.addEventListener('keydown', e=>{
-  if(e.key==='ArrowLeft') keys.left=true;
-  if(e.key==='ArrowRight') keys.right=true;
-  if(e.key==='ArrowUp'||e.key===' ') keys.jump=true;
-});
-window.addEventListener('keyup', e=>{
-  if(e.key==='ArrowLeft') keys.left=false;
-  if(e.key==='ArrowRight') keys.right=false;
-  if(e.key==='ArrowUp'||e.key===' ') keys.jump=false;
-});
-
-function resetPlayer(){
-  player.x = startPlatform.x + 50;
-  player.y = startPlatform.y - player.h;
-  player.vx=0; player.vy=0;
-}
-
-function updatePlayer(){
-  player.vx=0;
-  if(keys.left) player.vx=-player.speed;
-  if(keys.right) player.vx=player.speed;
-  if(keys.jump && player.onGround){
-    player.vy = -player.jumpPower;
-    player.onGround = false;
-    keys.jump = false;
-  }
-
-  player.vy += gravity;
-  player.x += player.vx;
-  player.y += player.vy;
-
-  player.onGround=false;
-  for(const p of platforms){
-    if(player.x+player.w>p.x && player.x<p.x+p.w){
-      if(player.y+player.h>p.y && player.y+player.h<p.y+p.h+20 && player.vy>=0){
-        player.y=p.y-player.h;
-        player.vy=0;
-        player.onGround=true;
-      }
-      if(player.y< p.y + p.h && player.y+player.h>p.y && player.vy<0){
-        resetPlayer();
-      }
+            document.getElementById('hs-count').innerText = hsCount.toLocaleString();
+            document.getElementById('sl-count').innerText = slCount.toLocaleString();
+            document.getElementById('diff-total').innerText = Math.abs(hsCount - slCount).toLocaleString();
+            
+        } catch (e) {
+            console.log("Waiting for data...");
+        }
     }
-  }
-  if(player.y > H){
-    resetPlayer();
-  }
 
-  const last = platforms[platforms.length-1];
-  if(player.x + 400 > last.x){
-    platforms.push({x:last.x + Math.random()*150 + 150, y:H-80-Math.random()*150, w:platformWidth, h:30});
-  }
-}
-
-function updateCamera(){
-  const targetX = player.x - W/3;
-  const targetY = player.y - H/2;
-  camera.x += (targetX - camera.x) * camera.smooth;
-  camera.y += (targetY - camera.y) * camera.smooth;
-}
-
-function draw(){
-  ctx.fillStyle="#050015"; ctx.fillRect(0,0,W,H);
-  for(const s of stars){ctx.fillStyle="white"; ctx.beginPath(); ctx.arc(s.x-camera.x*0.5,s.y,s.r,0,Math.PI*2);ctx.fill();}
-  ctx.save(); ctx.translate(-camera.x,-camera.y);
-  for(const p of platforms){ctx.fillStyle="#0f3b2e";ctx.fillRect(p.x,p.y,p.w,p.h);}
-  ctx.fillStyle=player.color; ctx.fillRect(player.x,player.y,player.w,player.h);
-  ctx.restore();
-}
-
-function loop(){if(running){updatePlayer(); updateCamera(); draw();} requestAnimationFrame(loop);}
-let running=false;
-
-function startGame(){
-  running=true;
-  loop();
-  const VIDEO_ID='JQbjS0_ZfJ0';
-  const iframe=document.createElement('iframe');
-  iframe.src=`https://www.youtube.com/embed/${VIDEO_ID}?autoplay=1&loop=1&playlist=${VIDEO_ID}&controls=0&rel=0&modestbranding=1&iv_load_policy=3`;
-  iframe.allow='autoplay; encrypted-media';
-  iframe.style.position='fixed'; iframe.style.left='-9999px'; iframe.style.width='1px'; iframe.style.height='1px'; iframe.style.opacity='0';
-  document.body.appendChild(iframe);
-}
-
-document.getElementById('startBtn').addEventListener('click', ()=>{
-  document.getElementById('startOverlay').style.display='none';
-  startGame();
-});
-})();
+    // Runs every 5 seconds
+    setInterval(updateCounts, 5000);
+    updateCounts();
 </script>
+
 </body>
 </html>
