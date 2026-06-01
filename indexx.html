@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Countryball Arena</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      overflow: hidden;
+      font-family: Arial;
+    }
+    canvas {
+      display: block;
+      margin: auto;
+      background: #222;
+    }
+  </style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<script>
+const canvas = document.getElementById("game");
+const ctx = canvas.getContext("2d");
+
+canvas.width = 800;
+canvas.height = 800;
+
+// HOLE
+const hole = {
+  x: 400,
+  y: 400,
+  r: 60
+};
+
+// COUNTRYBALLS
+let balls = [
+  {x:100,y:100,name:"Norway"},
+  {x:700,y:200,name:"USA"},
+  {x:200,y:700,name:"Japan"},
+  {x:600,y:600,name:"Germany"},
+  {x:300,y:300,name:"France"}
+];
+
+function drawArena() {
+  // circle arena border
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.arc(400,400,380,0,Math.PI*2);
+  ctx.stroke();
+
+  // hole
+  ctx.fillStyle = "black";
+  ctx.beginPath();
+  ctx.arc(hole.x,hole.y,hole.r,0,Math.PI*2);
+  ctx.fill();
+}
+
+function drawBalls() {
+  balls.forEach(b => {
+    ctx.fillStyle = "red";
+    ctx.beginPath();
+    ctx.arc(b.x,b.y,18,0,Math.PI*2);
+    ctx.fill();
+
+    ctx.fillStyle = "white";
+    ctx.font = "12px Arial";
+    ctx.fillText(b.name, b.x - 20, b.y - 25);
+  });
+}
+
+function updateBalls() {
+  balls.forEach(b => {
+    // random movement
+    b.x += (Math.random() - 0.5) * 6;
+    b.y += (Math.random() - 0.5) * 6;
+
+    // keep inside arena
+    let dx = b.x - 400;
+    let dy = b.y - 400;
+    let dist = Math.sqrt(dx*dx + dy*dy);
+
+    if(dist > 360) {
+      b.x -= dx * 0.05;
+      b.y -= dy * 0.05;
+    }
+
+    // hole collision
+    let hx = b.x - hole.x;
+    let hy = b.y - hole.y;
+    let hdist = Math.sqrt(hx*hx + hy*hy);
+
+    if(hdist < hole.r) {
+      console.log("Eliminated:", b.name);
+      balls = balls.filter(x => x !== b);
+    }
+  });
+}
+
+function drawWinner() {
+  if(balls.length === 1) {
+    ctx.fillStyle = "yellow";
+    ctx.font = "30px Arial";
+    ctx.fillText("WINNER: " + balls[0].name, 250, 400);
+  }
+}
+
+function loop() {
+  ctx.clearRect(0,0,800,800);
+
+  drawArena();
+  updateBalls();
+  drawBalls();
+  drawWinner();
+
+  requestAnimationFrame(loop);
+}
+
+loop();
+</script>
+
+</body>
+</html>
